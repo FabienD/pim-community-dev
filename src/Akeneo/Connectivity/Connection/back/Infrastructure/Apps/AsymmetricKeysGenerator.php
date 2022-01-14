@@ -14,14 +14,16 @@ use phpseclib3\File\X509;
  */
 class AsymmetricKeysGenerator implements AsymmetricKeysGeneratorInterface
 {
+    public function __construct(private string $openSSLConfigPath) { }
+
     public function generate(): AsymmetricKeys
     {
         /*
          * Following algorithm is the implementation documented by the phpseclib library
          * in order to generate self-signed public key and private key.
-         * ( see https://phpseclib.com/docs/x509#example-self-signed-cert )
+         * ( see http://phpseclib.sourceforge.net/x509/guide.html#selfsigned )
          */
-
+        RSA::setOpenSSLConfigPath($this->openSSLConfigPath);
         /** @var RSA\PrivateKey $privateKey */
         $privateKey = RSA::createKey();
         $publicKey = $privateKey->getPublicKey();
