@@ -13,7 +13,7 @@
             "": "src/"
         },
         "psr-4": {
-            "Pim\\Upgrade\\": "upgrades/",
+            "Pim\\Upgrade\\Schema\\": "upgrades/schema/",
             "Akeneo\\Channel\\Locale\\": "src/Akeneo/Channel/Locale/back",
             "Akeneo\\Connectivity\\Connection\\": "src/Akeneo/Connectivity/Connection/back",
             "Akeneo\\Platform\\CommunicationChannel\\": "src/Akeneo/Platform/Bundle/CommunicationChannelBundle/back",
