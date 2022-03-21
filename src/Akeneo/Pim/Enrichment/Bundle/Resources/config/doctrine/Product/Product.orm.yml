@@ -60,8 +60,8 @@ Akeneo\Pim\Enrichment\Component\Product\Model\Product:
             joinTable:
                 name: pim_catalog_group_product
                 joinColumns:
-                    product_id:
-                        referencedColumnName: id
+                    product_uuid:
+                        referencedColumnName: uuid
                         onDelete: CASCADE
                 inverseJoinColumns:
                     group_id:
@@ -73,8 +73,8 @@ Akeneo\Pim\Enrichment\Component\Product\Model\Product:
             joinTable:
                 name: pim_catalog_category_product
                 joinColumns:
-                    product_id:
-                        referencedColumnName: id
+                    product_uuid:
+                        referencedColumnName: uuid
                         onDelete: CASCADE
                 inverseJoinColumns:
                     category_id:
