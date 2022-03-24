@@ -61,14 +61,14 @@ class CalculateProductModelCompleteness implements \Akeneo\Pim\Automation\DataQu
 
     private function getProductMask(ProductId $productModelId): ?CompletenessProductMask
     {
-        $productModel = $this->productModelRepository->find($productModelId->toInt());
+        $productModel = $this->productModelRepository->find($productModelId->__toString());
 
         if (null === $productModel) {
             return null;
         }
 
         return $this->getCompletenessProductMasks->fromValueCollection(
-            $productModel->getId(),
+            (string) $productModel->getId(),
             $productModel->getCode(),
             $productModel->getFamily()->getCode(),
             $productModel->getValues()

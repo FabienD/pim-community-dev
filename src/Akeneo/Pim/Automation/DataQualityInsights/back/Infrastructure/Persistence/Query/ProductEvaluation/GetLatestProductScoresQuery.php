@@ -26,7 +26,7 @@ final class GetLatestProductScoresQuery implements GetLatestProductScoresQueryIn
     {
         $productScores = $this->byProductIds([$productId]);
 
-        return $productScores[$productId->toInt()] ?? new ChannelLocaleRateCollection();
+        return $productScores[$productId->__toString()] ?? new ChannelLocaleRateCollection();
     }
 
     public function byProductIds(array $productIds): array
@@ -35,27 +35,27 @@ final class GetLatestProductScoresQuery implements GetLatestProductScoresQueryIn
             return [];
         }
 
-        $productIds = array_map(fn (ProductId $productId) => $productId->toInt(), $productIds);
+        $productUuids = array_map(fn (ProductId $productId) => $productId->toBinary(), $productIds);
 
         $query = <<<SQL
-SELECT latest_score.product_id, latest_score.scores
+SELECT BIN_TO_UUID(latest_score.product_uuid) as product_uuid, latest_score.scores
 FROM pim_data_quality_insights_product_score AS latest_score
     LEFT JOIN pim_data_quality_insights_product_score AS younger_score
-        ON younger_score.product_id = latest_score.product_id
+        ON younger_score.product_uuid = latest_score.product_uuid
         AND younger_score.evaluated_at > latest_score.evaluated_at
-WHERE latest_score.product_id IN(:product_ids)
+WHERE latest_score.product_uuid IN (:product_uuids)
     AND younger_score.evaluated_at IS NULL;
 SQL;
 
         $stmt = $this->dbConnection->executeQuery(
             $query,
-            ['product_ids' => $productIds],
-            ['product_ids' => Connection::PARAM_INT_ARRAY]
+            ['product_uuids' => $productUuids],
+            ['product_uuids' => Connection::PARAM_STR_ARRAY]
         );
 
         $productsScores = [];
         while ($row = $stmt->fetchAssociative()) {
-            $productId = intval($row['product_id']);
+            $productId = $row['product_uuid'];
             $productsScores[$productId] = $this->hydrateScores($row['scores']);
         }
 

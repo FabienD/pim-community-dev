@@ -12,6 +12,7 @@ use Akeneo\Pim\Enrichment\Component\Product\Completeness\CompletenessCalculator;
 use Akeneo\Pim\Enrichment\Component\Product\Completeness\Model\ProductCompletenessWithMissingAttributeCodes;
 use Akeneo\Pim\Enrichment\Component\Product\Completeness\Model\ProductCompletenessWithMissingAttributeCodesCollection;
 use PhpSpec\ObjectBehavior;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @copyright 2019 Akeneo SAS (http://www.akeneo.com)
@@ -35,12 +36,12 @@ class CalculateProductCompletenessSpec extends ObjectBehavior
         GetProductIdentifierFromProductIdQueryInterface $getProductIdentifierFromProductIdQuery,
         CompletenessCalculator $completenessCalculator
     ) {
-        $productId = new ProductId(42);
+        $productId = new ProductId(Uuid::fromString('114c9108-444d-408a-ab43-195068166d2c'));
         $productIdentifier = new ProductIdentifier('ziggy_mug');
         $getProductIdentifierFromProductIdQuery->execute($productId)->willReturn($productIdentifier);
 
         $completenessCalculator->fromProductIdentifier('ziggy_mug')->willReturn(new ProductCompletenessWithMissingAttributeCodesCollection(
-            42, [
+            '114c9108-444d-408a-ab43-195068166d2c', [
                 new ProductCompletenessWithMissingAttributeCodes(
                     'ecommerce', 'en_US', 10, [
                         'name', 'description', 'weight', 'height'

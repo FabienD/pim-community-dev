@@ -85,7 +85,7 @@ SQL;
             $queries[] = sprintf($queryFormat, $productId, $criterionCode, $status, $status);
 
             $queryParametersValues[$criterionCode] = strval($criterionEvaluation->getCriterionCode());
-            $queryParametersValues[$productId] = $criterionEvaluation->getProductId()->toInt();
+            $queryParametersValues[$productId] = $criterionEvaluation->getProductId()->__toString();
             $queryParametersValues[$status] = $criterionEvaluation->getStatus();
 
             $queryParametersTypes[$productId] = \PDO::PARAM_INT;
@@ -161,7 +161,7 @@ SQL;
             $queries[] = sprintf($sqlQueryFormat, $evaluatedAt, $status, $result, $productId, $criterionCode);
 
             $queryParametersValues[$criterionCode] = strval($criterionEvaluation->getCriterionCode());
-            $queryParametersValues[$productId] = $criterionEvaluation->getProductId()->toInt();
+            $queryParametersValues[$productId] = $criterionEvaluation->getProductId()->__toString();
             $queryParametersValues[$evaluatedAt] = $this->formatDate($criterionEvaluation->getEvaluatedAt());
             $queryParametersValues[$status] = $criterionEvaluation->getStatus();
             $queryParametersValues[$result] = $this->formatCriterionEvaluationResult($criterionEvaluation->getResult());

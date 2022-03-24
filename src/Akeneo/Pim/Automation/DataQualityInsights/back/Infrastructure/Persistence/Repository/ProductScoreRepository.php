@@ -67,7 +67,7 @@ INSERT INTO pim_data_quality_insights_product_score (product_id, evaluated_at, s
 VALUES (:$productId, :$evaluatedAt, :$scores)
 ON DUPLICATE KEY UPDATE evaluated_at = :$evaluatedAt, scores = :$scores;
 SQL;
-            $queriesParameters[$productId] = $productScore->getProductId()->toInt();
+            $queriesParameters[$productId] = $productScore->getProductId()->__toString();
             $queriesParametersTypes[$productId] = \PDO::PARAM_INT;
             $queriesParameters[$evaluatedAt] = $productScore->getEvaluatedAt()->format('Y-m-d');
             $queriesParameters[$scores] = $this->formatScores($productScore->getScores());

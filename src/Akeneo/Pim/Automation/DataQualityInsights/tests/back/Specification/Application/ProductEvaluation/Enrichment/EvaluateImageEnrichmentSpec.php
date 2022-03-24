@@ -29,7 +29,7 @@ class EvaluateImageEnrichmentSpec extends ObjectBehavior
         $criterionEvaluation = EvaluationProvider::aWritableCriterionEvaluation(
             EvaluateImageEnrichment::CRITERION_CODE,
             CriterionEvaluationStatus::DONE,
-            $productId->toInt()
+            $productId->__toString()
         );
         $imageAttribute = CatalogProvider::anAttribute('an_image_attribute', AttributeTypes::IMAGE);
         $secondImageAttribute = CatalogProvider::anAttribute('a_second_image_attribute', AttributeTypes::IMAGE);
@@ -85,7 +85,7 @@ class EvaluateImageEnrichmentSpec extends ObjectBehavior
         $criterionEvaluation = EvaluationProvider::aWritableCriterionEvaluation(
             EvaluateImageEnrichment::CRITERION_CODE,
             CriterionEvaluationStatus::DONE,
-            $productId->toInt()
+            $productId->__toString()
         );
        $textAttribute = CatalogProvider::anAttribute('a_text_attribute');
         $productValues = CatalogProvider::aListOfProductValues([

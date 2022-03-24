@@ -36,7 +36,7 @@ final class HasUpToDateProductEvaluationQuery implements HasUpToDateEvaluationQu
         }
 
         $productIds = array_map(function (ProductId $productId) {
-            return $productId->toInt();
+            return $productId->__toString();
         }, $productIds);
 
         $query = <<<SQL

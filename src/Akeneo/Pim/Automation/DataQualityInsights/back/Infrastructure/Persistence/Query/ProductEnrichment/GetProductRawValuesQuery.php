@@ -40,7 +40,7 @@ SQL;
         $statement = $this->db->executeQuery(
             $query,
             [
-                'product_id' => $productId->toInt(),
+                'product_id' => $productId->__toString(),
             ],
             [
                 'product_id' => \PDO::PARAM_INT,

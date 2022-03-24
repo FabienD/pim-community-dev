@@ -91,7 +91,7 @@ SQL;
         $rows = $this->connection->executeQuery(
             $sql,
             [
-                'productModelId' => $productModelId->toInt(),
+                'productModelId' => $productModelId->__toString(),
                 'attributeTypes' => $this->attributeTypes
             ],
             [

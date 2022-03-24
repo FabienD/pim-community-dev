@@ -40,7 +40,7 @@ class UpdateProductsIndex
         $productsKeyIndicators = $this->getProductsKeyIndicators->compute($productIds);
 
         foreach ($productIds as $productId) {
-            $productId = $productId->toInt();
+            $productId = $productId->__toString();
             if (!array_key_exists($productId, $productsScores)) {
                 continue;
             }
@@ -51,7 +51,7 @@ class UpdateProductsIndex
         }
     }
 
-    private function updateProductIndex(int $productId, ChannelLocaleRateCollection $productScores, array $keyIndicators): void
+    private function updateProductIndex(string $productId, ChannelLocaleRateCollection $productScores, array $keyIndicators): void
     {
         $this->esClient->updateByQuery(
             [
@@ -64,7 +64,7 @@ class UpdateProductsIndex
                 ],
                 'query' => [
                     'term' => [
-                        'id' => sprintf('product_%d', $productId),
+                        'id' => sprintf('product_%s', $productId),
                     ],
                 ],
             ]

@@ -92,7 +92,7 @@ GROUP BY family.code, channel_code, locale_code;
 SQL;
         $rows = $this->dbConnection->executeQuery(
             $sql,
-            ['productModelId' => $productModelId->toInt()],
+            ['productModelId' => $productModelId->__toString()],
             ['productModelId' => \PDO::PARAM_INT]
         )->fetchAllAssociative();
 

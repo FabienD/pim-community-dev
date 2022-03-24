@@ -48,7 +48,7 @@ SQL;
         $statement = $this->dbConnection->executeQuery(
             $query,
             [
-                'product_id' => $productId->toInt(),
+                'product_id' => $productId->__toString(),
                 'attribute_types' => AttributeType::EVALUABLE_ATTRIBUTE_TYPES,
             ],
             [

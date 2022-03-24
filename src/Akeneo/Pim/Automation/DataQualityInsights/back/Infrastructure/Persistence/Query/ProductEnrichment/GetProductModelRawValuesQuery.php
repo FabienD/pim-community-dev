@@ -38,7 +38,7 @@ SQL;
         $statement = $this->dbConnection->executeQuery(
             $query,
             [
-                'product_model_id' => $productId->toInt(),
+                'product_model_id' => $productId->__toString(),
             ],
             [
                 'product_model_id' => \PDO::PARAM_INT,

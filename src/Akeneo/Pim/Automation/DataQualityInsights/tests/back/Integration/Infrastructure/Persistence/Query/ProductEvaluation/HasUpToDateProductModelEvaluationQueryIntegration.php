@@ -172,7 +172,7 @@ SQL;
 
         $this->db->executeQuery($query, [
             'evaluated' => $updatedAt->format('Y-m-d H:i:s'),
-            'product_model_id' => $productModelId->toInt(),
+            'product_model_id' => $productModelId->__toString(),
         ]);
     }
 
@@ -189,7 +189,7 @@ SQL;
 DELETE FROM pim_data_quality_insights_product_model_criteria_evaluation WHERE product_id = :product_id;
 SQL;
 
-        $this->db->executeQuery($query, ['product_id' => $productModelId->toInt(),]);
+        $this->db->executeQuery($query, ['product_id' => $productModelId->__toString(),]);
     }
 
     private function updateProductModelEvaluationsAt(ProductId $productModelId, \DateTimeImmutable $evaluatedAt): void
@@ -200,7 +200,7 @@ SQL;
 
         $this->db->executeQuery($query, [
             'evaluated_at' => $evaluatedAt->format(Clock::TIME_FORMAT),
-            'product_id' => $productModelId->toInt(),
+            'product_id' => $productModelId->__toString(),
         ]);
     }
 }

@@ -13,6 +13,7 @@ $builder = new RuleBuilder();
 $rules = [
     $builder->only(
         [
+            'Webmozart\Assert\Assert',
             //Needed to access to the criteria codes. To remove after refactoring
             'Akeneo\Pim\Automation\DataQualityInsights\Application\ProductEvaluation',
 
@@ -36,6 +37,7 @@ $rules = [
 
     $builder->only(
         [
+            'Ramsey\Uuid\Uuid',
             'Akeneo\Pim\Automation\DataQualityInsights\Domain',
             'Akeneo\Pim\Automation\DataQualityInsights\Application',
 

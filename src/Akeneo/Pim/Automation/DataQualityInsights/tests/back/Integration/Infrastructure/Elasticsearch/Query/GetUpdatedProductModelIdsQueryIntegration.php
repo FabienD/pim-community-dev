@@ -168,11 +168,11 @@ SQL;
     private function assertExpectedProductId(ProductId $expectedProductId, array $productIds): void
     {
         foreach ($productIds as $productId) {
-            if ($productId->toInt() === $expectedProductId->toInt()) {
+            if ($productId->toInt() === $expectedProductId->__toString()) {
                 return;
             }
         }
 
-        throw new AssertionFailedError(sprintf('Expected product id %d not found', $expectedProductId->toInt()));
+        throw new AssertionFailedError(sprintf('Expected product id %d not found', $expectedProductId->__toString()));
     }
 }

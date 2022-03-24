@@ -69,24 +69,24 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
             ->execute([42]));
     }
 
-    private function givenAProductWithTwoPendingAndOneDoneEvaluations(string $productCode): int
+    private function givenAProductWithTwoPendingAndOneDoneEvaluations(string $productCode): string
     {
         $productId = new ProductId($this->createProductWithoutEvaluations($productCode)->getId());
 
         $criterionEvaluationCollection = $this->createTwoPendingAndOneDoneEvaluations($productId);
         $this->productCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productId->toInt();
+        return $productId->__toString();
     }
 
-    private function givenAProductModelWithTwoPendingAndOneDoneEvaluations(string $productModelCode): int
+    private function givenAProductModelWithTwoPendingAndOneDoneEvaluations(string $productModelCode): string
     {
         $productModelId = new ProductId($this->createProductModelWithoutEvaluations($productModelCode, 'a_family_variant')->getId());
 
         $criterionEvaluationCollection = $this->createTwoPendingAndOneDoneEvaluations($productModelId);
         $this->productModelCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productModelId->toInt();
+        return $productModelId->__toString();
     }
 
     private function createTwoPendingAndOneDoneEvaluations(ProductId $productId): Write\CriterionEvaluationCollection
@@ -109,7 +109,7 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
             ));
     }
 
-    private function givenAProductWithOnePendingEvaluation(string $productCode): int
+    private function givenAProductWithOnePendingEvaluation(string $productCode): string
     {
         $productId = new ProductId($this->createProductWithoutEvaluations($productCode)->getId());
 
@@ -122,10 +122,10 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
 
         $this->productCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productId->toInt();
+        return $productId->__toString();
     }
 
-    private function givenAProductModelWithOnePendingEvaluation(string $productModelCode): int
+    private function givenAProductModelWithOnePendingEvaluation(string $productModelCode): string
     {
         $productModelId = new ProductId($this->createProductModelWithoutEvaluations($productModelCode, 'a_family_variant')->getId());
 
@@ -138,7 +138,7 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
 
         $this->productModelCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productModelId->toInt();
+        return $productModelId->__toString();
     }
 
     private function givenAProductWithOnlyDoneEvaluations(string $productCode): int

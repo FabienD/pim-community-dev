@@ -50,12 +50,12 @@ final class ComputeProductsEnrichmentStatusQuery implements ComputeProductsKeyIn
 
     public function compute(array $productIds): array
     {
-        $productIds = array_map(fn (ProductId $productId) => $productId->toInt(), $productIds);
         $channelsLocales = $this->getLocalesByChannelQuery->getArray();
         $productsEvaluations = $this->getProductsEvaluations($productIds);
 
         $productsEnrichmentStatus = [];
         foreach ($productIds as $productId) {
+            $productId = $productId->__toString();
             if (!isset($productsEvaluations[$productId])) {
                 continue;
             }
@@ -127,6 +127,7 @@ final class ComputeProductsEnrichmentStatusQuery implements ComputeProductsKeyIn
 
         $productsEvaluations = [];
         foreach ($productIds as $productId) {
+            $productId = $productId->__toString();
             $productsEvaluations[$productId] = [
                 EvaluateCompletenessOfRequiredAttributes::CRITERION_CODE => $requiredAttributesEvaluations[$productId] ?? null,
                 EvaluateCompletenessOfNonRequiredAttributes::CRITERION_CODE => $nonRequiredAttributesEvaluations[$productId] ?? null,
@@ -139,19 +140,22 @@ final class ComputeProductsEnrichmentStatusQuery implements ComputeProductsKeyIn
     private function getProductsEvaluationsByCriterion(string $criterionCode, array $productIds): array
     {
         $query = <<<SQL
-SELECT product_id, result
+SELECT BIN_TO_UUID(product_uuid) as product_uuid, result
 FROM pim_data_quality_insights_product_criteria_evaluation
-WHERE product_id IN(:productIds) AND criterion_code = :criterionCode
+WHERE product_uuid IN (:productUuids) AND criterion_code = :criterionCode
 SQL;
 
         $stmt = $this->db->executeQuery(
             $query,
             [
-                'productIds' => $productIds,
+                'productUuids' => \array_map(
+                    fn (ProductId $productId): string => $productId->toBinary(),
+                    $productIds
+                ),
                 'criterionCode' => $criterionCode,
             ],
             [
-                'productIds' => Connection::PARAM_INT_ARRAY,
+                'productUuids' => Connection::PARAM_STR_ARRAY,
             ]
         );
 

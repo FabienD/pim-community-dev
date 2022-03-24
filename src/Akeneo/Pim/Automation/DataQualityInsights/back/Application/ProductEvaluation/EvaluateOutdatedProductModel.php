@@ -24,7 +24,7 @@ class EvaluateOutdatedProductModel
     public function __invoke(ProductId $productModelId): void
     {
         if (false === $this->hasUpToDateEvaluationQuery->forProductId($productModelId)) {
-            ($this->evaluateProductModels)([$productModelId->toInt()]);
+            ($this->evaluateProductModels)([$productModelId->__toString()]);
         }
     }
 }

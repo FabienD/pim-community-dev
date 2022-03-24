@@ -7,6 +7,7 @@ namespace Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Q
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\Query\ProductEnrichment\GetProductIdsFromProductIdentifiersQueryInterface;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
 use Doctrine\DBAL\Connection;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
@@ -28,7 +29,7 @@ final class GetProductIdsFromProductIdentifiersQuery implements GetProductIdsFro
     public function execute(array $productIdentifiers): array
     {
         $query = <<<SQL
-SELECT identifier, id FROM pim_catalog_product
+SELECT identifier, BIN_TO_UUID(uuid) as uuid FROM pim_catalog_product
 WHERE identifier IN (:product_identifiers)
 SQL;
 
@@ -40,7 +41,7 @@ SQL;
 
         $productIds = [];
         while ($product = $stmt->fetchAssociative()) {
-            $productIds[$product['identifier']] = new ProductId(intval($product['id']));
+            $productIds[$product['identifier']] = new ProductId(Uuid::fromString($product['uuid']));
         }
 
         return $productIds;

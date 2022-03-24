@@ -37,7 +37,7 @@ class ComputeProductsKeyIndicators
 
         $productsKeyIndicators = [];
         foreach ($productIds as $productId) {
-            $productId = $productId->toInt();
+            $productId = $productId->__toString();
             foreach ($localesByChannel as $channel => $locales) {
                 foreach ($locales as $locale) {
                     foreach ($keyIndicatorsResultsByName as $keyIndicatorName => $keyIndicatorResultsByProduct) {

@@ -32,25 +32,25 @@ final class GetEvaluationRatesByProductsAndCriterionQuery implements GetEvaluati
         $ratesPath = sprintf('$."%s"', TransformCriterionEvaluationResultCodes::PROPERTIES_ID['rates']);
 
         $query = <<<SQL
-SELECT product_id, JSON_EXTRACT(result, '$ratesPath') AS rates
+SELECT BIN_TO_UUID(product_uuid) as product_uuid, JSON_EXTRACT(result, '$ratesPath') AS rates
 FROM pim_data_quality_insights_product_criteria_evaluation
-WHERE product_id IN (:productIds) AND criterion_code = :criterionCode;
+WHERE product_uuid IN (:productUuids) AND criterion_code = :criterionCode;
 SQL;
 
         $stmt = $this->dbConnection->executeQuery(
             $query,
             [
-                'productIds' => array_map(fn (ProductId $productId) => $productId->toInt(), $productIds),
+                'productUuids' => array_map(fn (ProductId $productId): string => $productId->toBinary(), $productIds),
                 'criterionCode' => $criterionCode,
             ],
             [
-                'productIds' => Connection::PARAM_INT_ARRAY,
+                'productUuids' => Connection::PARAM_STR_ARRAY,
             ]
         );
 
         $evaluationRates = [];
         while ($evaluationResult = $stmt->fetchAssociative()) {
-            $evaluationRates[$evaluationResult['product_id']] = $this->formatEvaluationRates($evaluationResult);
+            $evaluationRates[$evaluationResult['product_uuid']] = $this->formatEvaluationRates($evaluationResult);
         }
 
         return $evaluationRates;

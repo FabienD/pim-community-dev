@@ -42,7 +42,7 @@ final class GetDataQualityInsightsPropertiesForProductProjection implements GetA
 
         $additionalProperties = [];
         foreach ($productIds as $productIdentifier => $productId) {
-            $productId = $productId->toInt();
+            $productId = $productId->__toString();
             $additionalProperties[$productIdentifier] = [
                 'data_quality_insights' => [
                     'scores' => isset($productScores[$productId]) ? $productScores[$productId]->toArrayIntRank() : [],

@@ -197,7 +197,7 @@ SQL;
 
         $this->db->executeQuery($query, [
             'updated' => $updatedAt->format('Y-m-d H:i:s'),
-            'product_id' => $productId->toInt(),
+            'product_id' => $productId->__toString(),
         ]);
     }
 
@@ -221,7 +221,7 @@ SQL;
 
         $this->db->executeQuery($query, [
             'evaluated_at' => $evaluatedAt->format(Clock::TIME_FORMAT),
-            'product_id' => $productId->toInt(),
+            'product_id' => $productId->__toString(),
         ]);
     }
 }
