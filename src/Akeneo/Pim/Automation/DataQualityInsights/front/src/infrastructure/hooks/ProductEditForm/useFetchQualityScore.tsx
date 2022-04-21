@@ -7,26 +7,26 @@ const MAX_NB_ATTEMPTS = 10;
 const RETRY_MILLISECONDS_DELAY = 500;
 
 type InnerFetcherOutcome =
-  | {
-      status: 'loading';
-    }
-  | {
-      status: 'loaded';
-      scores: QualityScoreModel;
-    }
-  | {
-      status: 'failed';
-      error: string;
-    };
+    | {
+  status: 'loading';
+}
+    | {
+  status: 'loaded';
+  scores: QualityScoreModel;
+}
+    | {
+  status: 'failed';
+  error: string;
+};
 
 export type QualityScoresFetchingOutcome =
-  | {
-      status: 'init';
-    }
-  | InnerFetcherOutcome
-  | {
-      status: 'attempts exhausted';
-    };
+    | {
+  status: 'init';
+}
+    | InnerFetcherOutcome
+    | {
+  status: 'attempts exhausted';
+};
 
 const initialOutcome: QualityScoresFetchingOutcome = {
   status: 'init',
@@ -73,9 +73,9 @@ type HooksReturn = {
 };
 
 const useFetchQualityScore = (
-  type: ProductType,
-  id: number | null,
-  getRetryDelay: RetryDelayCalculator = defaultGetRetryDelay
+    type: ProductType,
+    id: number | null,
+    getRetryDelay: RetryDelayCalculator = defaultGetRetryDelay
 ): HooksReturn => {
   const [scoresFetchingOutcome, setScoresFetchingOutcome] = useState<QualityScoresFetchingOutcome>(initialOutcome);
 

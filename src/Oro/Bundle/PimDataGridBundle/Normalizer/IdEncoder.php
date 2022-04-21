@@ -42,8 +42,10 @@ class IdEncoder
             self::PRODUCT_TYPE :
             self::PRODUCT_MODEL_TYPE;
 
+        $identifierName = $type === self::PRODUCT_TYPE ? 'uuid' : 'id';
+
         return [
-            'id'   => str_replace($type . '_', '', $encodedId),
+            $identifierName => str_replace($type . '_', '', $encodedId),
             'type' => $type,
         ];
     }

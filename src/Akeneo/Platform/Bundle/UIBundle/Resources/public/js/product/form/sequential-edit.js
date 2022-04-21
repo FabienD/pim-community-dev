@@ -36,7 +36,7 @@ define([
   sequentialEditProvider
 ) {
   const findObjectIndex = (objects, id, type) => {
-    return objects.findIndex(item => item.id === id && item.type === type);
+    return objects.findIndex(item => (item.type === ' product' ? item.uuid : item.id) === id && item.type === type);
   };
 
   const getObjectViewParams = object => {
@@ -107,7 +107,7 @@ define([
     getTemplateParameters: function () {
       const objectSet = this.model.get('objectSet');
       const currentMeta = this.getFormData().meta;
-      const index = findObjectIndex(objectSet, currentMeta.id, currentMeta.model_type);
+      const index = findObjectIndex(objectSet, currentMeta.model_type === 'product' ? currentMeta.uuid : currentMeta.id, currentMeta.model_type);
       const previous = objectSet[index - 1];
       const next = objectSet[index + 1];
 
@@ -117,14 +117,14 @@ define([
       var promises = [];
       if (previous) {
         promises.push(
-          this.getEntity(previous.type, previous.id).then(function (product) {
+          this.getEntity(previous.type, previous.type === 'product' ? previous.uuid : previous.id).then(function (product) {
             previousObject = getObjectViewParams(product);
           })
         );
       }
       if (next) {
         promises.push(
-          this.getEntity(next.type, next.id).then(function (product) {
+          this.getEntity(next.type, next.type === 'product' ? next.uuid : next.id).then(function (product) {
             nextObject = getObjectViewParams(product);
           })
         );
@@ -146,7 +146,7 @@ define([
       var pending = objectSet[currentIndex + 2];
       if (pending) {
         setTimeout(() => {
-          this.getEntity(pending.type, pending.id);
+          this.getEntity(pending.type, pending.type === 'product' ? pending.uuid : pending.id);
         }, 2000);
       }
     },
@@ -156,7 +156,7 @@ define([
     continue: function () {
       var nextObject = this.getNextObject();
       if (nextObject) {
-        this.goToProduct(nextObject.type, nextObject.id);
+        this.goToProduct(nextObject.type, nextObject.uuid);
       } else {
         this.finish();
       }
@@ -169,7 +169,11 @@ define([
       });
     },
     goToProduct: function (type, id) {
-      router.redirectToRoute('pim_enrich_' + type + '_edit', {id: id});
+      if (type === 'product') {
+        return router.generate('pim_enrich_product_edit', {uuid: id});
+      }
+
+      return router.generate('pim_enrich_' + type + '_edit', {id: id});
     },
     finish: function () {
       router.redirectToRoute('pim_enrich_product_index');
