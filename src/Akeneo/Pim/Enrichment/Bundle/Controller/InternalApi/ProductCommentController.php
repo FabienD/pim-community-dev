@@ -110,10 +110,18 @@ class ProductCommentController
     public function getAction($id)
     {
         $product = $this->findProductOr404($id);
-        $comments = $this->commentRepository->getComments(
-            ClassUtils::getClass($product),
-            $product->getId()
-        );
+
+        if ($product instanceof ProductInterface) {
+            $comments = $this->commentRepository->getCommentsByUuid(
+                ClassUtils::getClass($product),
+                $product->getUuid()
+            );
+        } else {
+            $comments = $this->commentRepository->getComments(
+                ClassUtils::getClass($product),
+                $product->getId()
+            );
+        }
 
         $comments = $this->normalizer->normalize($comments, 'standard');
 
