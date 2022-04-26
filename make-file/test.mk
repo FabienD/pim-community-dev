@@ -35,6 +35,7 @@ lint-back:
 	$(MAKE) data-quality-insights-phpstan
 	$(MAKE) job-lint-back
 	$(MAKE) enrichment-product-lint-back
+	$(MAKE) category-lint-back
 
 .PHONY: lint-front
 lint-front:
