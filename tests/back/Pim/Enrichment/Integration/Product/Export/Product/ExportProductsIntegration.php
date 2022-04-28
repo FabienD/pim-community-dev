@@ -2,6 +2,8 @@
 
 namespace AkeneoTest\Pim\Enrichment\Integration\Product\Export\Product;
 
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetFamily;
+use Akeneo\Pim\Enrichment\Product\API\Command\UserIntent\SetTextareaValue;
 use AkeneoTest\Pim\Enrichment\Integration\Product\Export\AbstractExportTestCase;
 
 /**
@@ -189,12 +191,8 @@ CSV;
     public function testItEscapeCharacterCorrectly()
     {
         $this->createProduct('product_1', [
-            'family' => 'a_family',
-            'values'     => [
-                'a_text_area' => [
-                    ['data' => 'test "1234" DLE test  \" joli produit ; vive la data "', 'locale' => null, 'scope' => null]
-                ]
-            ]
+            new SetFamily('a_family'),
+            new SetTextareaValue('a_text_area', null, null, 'test "1234" DLE test  \" joli produit ; vive la data "')
         ]);
 
         $expectedCsv = <<<CSV
