@@ -13,7 +13,7 @@ use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ChannelCode;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionCode;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionEvaluationResultStatus;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\LocaleCode;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductEntityIdInterface;
 
 /**
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
@@ -47,9 +47,9 @@ class GetProductEvaluation
     ) {
     }
 
-    public function get(ProductUuid $productId): array
+    public function get(ProductEntityIdInterface $entityId): array
     {
-        $criteriaEvaluations = $this->getCriteriaEvaluationsByProductIdQuery->execute($productId);
+        $criteriaEvaluations = $this->getCriteriaEvaluationsByProductIdQuery->execute($entityId);
         $criteriaEvaluations = ($this->completeEvaluationWithImprovableAttributes)($criteriaEvaluations);
         $channelsLocales = $this->getLocalesByChannelQuery->getChannelLocaleCollection();
 
