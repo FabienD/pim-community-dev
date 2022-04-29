@@ -505,6 +505,7 @@ class SearchJobExecutionTest extends IntegrationTestCase
                             Status::fromLabel('COMPLETED'),
                         ),
                     ]),
+                    null,
                 ),
                 $this->jobExecutionIds[1] => new JobExecutionRow(
                     $this->jobExecutionIds[1],
@@ -526,6 +527,7 @@ class SearchJobExecutionTest extends IntegrationTestCase
                             Status::fromLabel('IN_PROGRESS'),
                         ),
                     ]),
+                    null,
                 ),
                 $this->jobExecutionIds[2] => new JobExecutionRow(
                     $this->jobExecutionIds[2],
@@ -536,6 +538,7 @@ class SearchJobExecutionTest extends IntegrationTestCase
                     Status::fromLabel('STARTING'),
                     true,
                     new JobExecutionTracking(0, 3, []),
+                    null,
                 ),
                 $this->jobExecutionIds[3] => new JobExecutionRow(
                     $this->jobExecutionIds[3],
@@ -546,6 +549,7 @@ class SearchJobExecutionTest extends IntegrationTestCase
                     Status::fromLabel('STARTING'),
                     true,
                     new JobExecutionTracking(0, 3, []),
+                    null,
                 ),
             ];
         }

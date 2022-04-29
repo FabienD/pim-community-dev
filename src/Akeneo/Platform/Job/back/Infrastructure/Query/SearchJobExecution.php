@@ -65,6 +65,7 @@ SQL;
             job_instance.label,
             job_instance.type,
             job_execution.start_time,
+            job_execution.health_check_time,
             job_execution.user,
             job_execution.status,
             job_execution.is_stoppable,

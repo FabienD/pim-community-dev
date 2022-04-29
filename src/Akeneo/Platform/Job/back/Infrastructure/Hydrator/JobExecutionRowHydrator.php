@@ -25,6 +25,10 @@ class JobExecutionRowHydrator
             \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $jobExecution['start_time'], new \DateTimeZone('UTC'))
             : null;
 
+        $healthCheckTime = null !== $jobExecution['health_check_time'] ?
+            \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $jobExecution['health_check_time'], new \DateTimeZone('UTC'))
+            : null;
+
         $tracking = $this->jobExecutionTrackingHydrator->hydrate(
             (int) $jobExecution['current_step_number'] ?? 0,
             (int) $jobExecution['step_count'],
@@ -40,6 +44,7 @@ class JobExecutionRowHydrator
             Status::fromStatus((int) $jobExecution['status']),
             (bool) $jobExecution['is_stoppable'],
             $tracking,
+            $healthCheckTime,
         );
     }
 }

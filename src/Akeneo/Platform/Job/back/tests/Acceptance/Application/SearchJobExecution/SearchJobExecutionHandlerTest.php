@@ -52,6 +52,7 @@ class SearchJobExecutionHandlerTest extends AcceptanceTestCase
                 Status::fromLabel('COMPLETED'),
                 false,
                 new JobExecutionTracking(1, 2, []),
+                null,
             ),
             new JobExecutionRow(
                 2,
@@ -62,6 +63,7 @@ class SearchJobExecutionHandlerTest extends AcceptanceTestCase
                 Status::fromLabel('FAILED'),
                 true,
                 new JobExecutionTracking(1, 2, []),
+                null,
             ),
         ];
 

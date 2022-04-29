@@ -13,6 +13,9 @@ use Akeneo\Platform\Job\Domain\Model\Status;
  */
 final class JobExecutionRow
 {
+    private const MAX_TIME_TO_UPDATE_HEALTH_CHECK = 5;
+    private const HEALTH_CHECK_INTERVAL = 5;
+
     public function __construct(
         private int $jobExecutionId,
         private string $jobName,
@@ -22,7 +25,9 @@ final class JobExecutionRow
         private Status $status,
         private bool $isStoppable,
         private JobExecutionTracking $tracking,
+        private ?\DateTimeImmutable $healthCheckTime,
     ) {
+        $this->status = $this->resolveJobExecutionStatus();
     }
 
     public function normalize(): array
@@ -38,6 +43,25 @@ final class JobExecutionRow
             'has_error' => $this->tracking->hasError(),
             'tracking' => $this->tracking->normalize(),
             'is_stoppable' => $this->isStoppable,
+            'health_check_time' => $this->healthCheckTime?->format(DATE_ATOM),
         ];
+    }
+
+    private function resolveJobExecutionStatus(): Status
+    {
+        if (Status::STARTING === $this->status->getStatus()
+            || null === $this->healthCheckTime
+        ) {
+            return $this->status;
+        }
+
+        $now = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $diffInSeconds = $now->getTimestamp() - $this->healthCheckTime->getTimestamp();
+
+        if ($diffInSeconds > self::HEALTH_CHECK_INTERVAL + self::MAX_TIME_TO_UPDATE_HEALTH_CHECK) {
+            return Status::fromStatus(Status::FAILED);
+        }
+
+        return $this->status;
     }
 }

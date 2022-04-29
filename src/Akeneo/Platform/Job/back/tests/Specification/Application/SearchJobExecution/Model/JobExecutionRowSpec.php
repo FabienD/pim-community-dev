@@ -21,7 +21,8 @@ class JobExecutionRowSpec extends ObjectBehavior
             'admin',
             Status::fromLabel('COMPLETED'),
             true,
-            new JobExecutionTracking(1, 3, [])
+            new JobExecutionTracking(1, 3, []),
+            new \DateTimeImmutable('2021-11-02T11:20:27+02:00'),
         );
     }
 
@@ -38,7 +39,7 @@ class JobExecutionRowSpec extends ObjectBehavior
             'type' => 'export',
             'started_at' => '2021-11-02T11:20:27+02:00',
             'username' => 'admin',
-            'status' => 'COMPLETED',
+            'status' => 'FAILED',
             'warning_count' => 0,
             'has_error' => false,
             'tracking' => [
@@ -47,6 +48,7 @@ class JobExecutionRowSpec extends ObjectBehavior
                 'steps' => [],
             ],
             'is_stoppable' => true,
+            'health_check_time' => '2021-11-02T11:20:27+02:00',
         ]);
     }
 
@@ -60,7 +62,8 @@ class JobExecutionRowSpec extends ObjectBehavior
             null,
             Status::fromLabel('COMPLETED'),
             false,
-            new JobExecutionTracking(1, 1, [])
+            new JobExecutionTracking(1, 1, []),
+            null,
         );
 
         $this->normalize()->shouldReturn([
@@ -78,6 +81,7 @@ class JobExecutionRowSpec extends ObjectBehavior
                 'steps' => [],
             ],
             'is_stoppable' => false,
+            'health_check_time' => null,
         ]);
     }
 }
