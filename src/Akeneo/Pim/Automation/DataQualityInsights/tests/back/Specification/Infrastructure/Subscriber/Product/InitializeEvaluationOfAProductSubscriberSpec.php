@@ -6,12 +6,10 @@ namespace Specification\Akeneo\Pim\Automation\DataQualityInsights\Infrastructure
 
 use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductEntityIdFactoryInterface;
 use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductEvaluation\CreateCriteriaEvaluations;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductIdCollection;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuidCollection;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
 use Akeneo\Platform\Bundle\FeatureFlagBundle\FeatureFlag;
 use Akeneo\Tool\Component\StorageUtils\StorageEvents;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Result;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Psr\Log\LoggerInterface;
@@ -25,14 +23,13 @@ class InitializeEvaluationOfAProductSubscriberSpec extends ObjectBehavior
         FeatureFlag                     $dataQualityInsightsFeature,
         CreateCriteriaEvaluations       $createProductsCriteriaEvaluations,
         LoggerInterface                 $logger,
-        ProductEntityIdFactoryInterface $idFactory,
-        Connection $connection
+        ProductEntityIdFactoryInterface $idFactory
     ) {
         $this->beConstructedWith(
             $dataQualityInsightsFeature,
             $createProductsCriteriaEvaluations,
             $logger,
-            $connection
+            $idFactory
         );
     }
 
@@ -80,24 +77,16 @@ class InitializeEvaluationOfAProductSubscriberSpec extends ObjectBehavior
         $dataQualityInsightsFeature,
         $createProductsCriteriaEvaluations,
         $idFactory,
-        ProductInterface $product,
-        Connection $connection,
-        Result $result
+        ProductInterface $product
     )
     {
-        $product->getUuid()->willReturn(Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5'));
-        $productIdCollection = ProductIdCollection::fromStrings(['12345']);
-
-        $product->getId()->willReturn(12345);
         $dataQualityInsightsFeature->isEnabled()->willReturn(true);
-        $idFactory->createCollection(['12345'])->willReturn($productIdCollection);
-        $createProductsCriteriaEvaluations->createAll($productIdCollection)->shouldBeCalled();
 
-        $connection->executeQuery(
-            Argument::any(),
-            [Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5')->getBytes()]
-        )->shouldBeCalled()->willReturn($result);
-        $result->fetchOne()->willReturn(12345);
+        $product->getUuid()->willReturn(Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5'));
+        $productIdCollection = ProductUuidCollection::fromStrings(['54162e35-ff81-48f1-96d5-5febd3f00fd5']);
+        $idFactory->createCollection(['54162e35-ff81-48f1-96d5-5febd3f00fd5'])->willReturn($productIdCollection);
+
+        $createProductsCriteriaEvaluations->createAll($productIdCollection)->shouldBeCalled();
 
         $this->onPostSave(new GenericEvent($product->getWrappedObject(), ['unitary' => true]));
     }
@@ -106,29 +95,20 @@ class InitializeEvaluationOfAProductSubscriberSpec extends ObjectBehavior
         $dataQualityInsightsFeature,
         $createProductsCriteriaEvaluations,
         $logger,
-        $idFactory,
-        ProductInterface $product,
-        Connection $connection,
-        Result $result
+        ProductEntityIdFactoryInterface $idFactory,
+        ProductInterface $product
     ) {
-        $product->getUuid()->willReturn(Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5'));
-        $productIdCollection = ProductIdCollection::fromStrings(['12345']);
-
-        $product->getId()->willReturn(12345);
         $dataQualityInsightsFeature->isEnabled()->willReturn(true);
-        $idFactory->createCollection(['12345'])->willReturn($productIdCollection);
+
+        $product->getUuid()->willReturn(Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5'));
+        $productUuidCollection = ProductUuidCollection::fromStrings(['54162e35-ff81-48f1-96d5-5febd3f00fd5']);
+        $idFactory->createCollection(['54162e35-ff81-48f1-96d5-5febd3f00fd5'])->willReturn($productUuidCollection);
 
         $createProductsCriteriaEvaluations
-            ->createAll($productIdCollection)
+            ->createAll($productUuidCollection)
             ->willThrow(\Exception::class);
 
         $logger->error('Unable to create product criteria evaluation', Argument::any())->shouldBeCalledOnce();
-
-        $connection->executeQuery(
-            Argument::any(),
-            [Uuid::fromString('54162e35-ff81-48f1-96d5-5febd3f00fd5')->getBytes()]
-        )->shouldBeCalled()->willReturn($result);
-        $result->fetchOne()->willReturn(12345);
 
         $this->onPostSave(new GenericEvent($product->getWrappedObject(), ['unitary' => true]));
     }

@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\Infrastructure\Persistence\Query\ProductEvaluation;
 
-use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductIdFactory;
 use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductModelIdFactory;
+use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductUuidFactory;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\Model\Write;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\Repository\CriterionEvaluationRepositoryInterface;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionCode;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionEvaluationStatus;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductEntityIdInterface;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductIdCollection;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductModelId;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
 use Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\DataQualityInsightsTestCase;
+use Ramsey\Uuid\Uuid;
 
-final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends DataQualityInsightsTestCase
+final class GetPendingCriteriaEvaluationsByEntityIdsQueryIntegration extends DataQualityInsightsTestCase
 {
     private CriterionEvaluationRepositoryInterface $productCriterionEvaluationRepository;
 
@@ -38,7 +38,7 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
 
         $this->givenAProductWithOnePendingEvaluation('not_involved_product');
 
-        $productIdCollection = $this->get(ProductIdFactory::class)->createCollection([
+        $productIdCollection = $this->get(ProductUuidFactory::class)->createCollection([
             (string)$productIdA, (string)$productIdB, (string)$productIdC
         ]);
 
@@ -78,20 +78,20 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
 
     public function test_it_returns_an_empty_array_if_there_is_no_pending_criteria_evaluations()
     {
-        $productIdCollection = $this->get(ProductIdFactory::class)->createCollection(['42']);
+        $productIdCollection = $this->get(ProductUuidFactory::class)->createCollection([Uuid::uuid4()->toString()]);
         $this->assertEmpty($this->get('akeneo.pim.automation.data_quality_insights.query.get_product_pending_criteria_evaluations')
             ->execute($productIdCollection));
     }
 
-    private function givenAProductWithTwoPendingAndOneDoneEvaluations(string $productCode): ProductId
+    private function givenAProductWithTwoPendingAndOneDoneEvaluations(string $productCode): ProductUuid
     {
         $product = $this->createProductWithoutEvaluations($productCode);
-        $productId = $this->get(ProductIdFactory::class)->create((string)$product->getId());
+        $productUuid = $this->get(ProductUuidFactory::class)->create((string)$product->getUuid());
 
-        $criterionEvaluationCollection = $this->createTwoPendingAndOneDoneEvaluations($productId);
+        $criterionEvaluationCollection = $this->createTwoPendingAndOneDoneEvaluations($productUuid);
         $this->productCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productId;
+        return $productUuid;
     }
 
     private function givenAProductModelWithTwoPendingAndOneDoneEvaluations(string $productModelCode): ProductModelId
@@ -125,21 +125,21 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
             ));
     }
 
-    private function givenAProductWithOnePendingEvaluation(string $productCode): ProductId
+    private function givenAProductWithOnePendingEvaluation(string $productCode): ProductUuid
     {
         $product = $this->createProductWithoutEvaluations($productCode);
-        $productId = $this->get(ProductIdFactory::class)->create((string)$product->getId());
+        $productUuid = $this->get(ProductUuidFactory::class)->create((string)$product->getUuid());
 
         $criterionEvaluationCollection = (new Write\CriterionEvaluationCollection())
             ->add(new Write\CriterionEvaluation(
                 new CriterionCode('completeness'),
-                $productId,
+                $productUuid,
                 CriterionEvaluationStatus::pending()
             ));
 
         $this->productCriterionEvaluationRepository->create($criterionEvaluationCollection);
 
-        return $productId;
+        return $productUuid;
     }
 
     private function givenAProductModelWithOnePendingEvaluation(string $productModelCode): ProductModelId
@@ -159,14 +159,14 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
         return $productModelId;
     }
 
-    private function givenAProductWithOnlyDoneEvaluations(string $productCode): ProductId
+    private function givenAProductWithOnlyDoneEvaluations(string $productCode): ProductUuid
     {
         $product = $this->createProductWithoutEvaluations($productCode);
-        $productId = $this->get(ProductIdFactory::class)->create((string)$product->getId());
+        $productUuid = $this->get(ProductUuidFactory::class)->create((string)$product->getUuid());
 
         $evaluation = new Write\CriterionEvaluation(
             new CriterionCode('spelling'),
-            $productId,
+            $productUuid,
             CriterionEvaluationStatus::pending()
         );
 
@@ -176,7 +176,7 @@ final class GetPendingCriteriaEvaluationsByProductIdsQueryIntegration extends Da
         $evaluation->end(new Write\CriterionEvaluationResult());
         $this->productCriterionEvaluationRepository->update($evaluations);
 
-        return $productId;
+        return $productUuid;
     }
 
     private function givenAProductModelWithOnlyDoneEvaluations(string $productModelCode): ProductModelId

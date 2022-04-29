@@ -8,14 +8,14 @@ use Akeneo\Pim\Automation\DataQualityInsights\Domain\Model\Write;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\Repository\CriterionEvaluationRepositoryInterface;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionCode;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\CriterionEvaluationStatus;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductIdCollection;
-use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEvaluation\GetProductIdsToEvaluateQuery;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuidCollection;
+use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEvaluation\GetProductUuidsToEvaluateQuery;
 use Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\DataQualityInsightsTestCase;
 
-class GetProductIdsToEvaluateQueryIntegration extends DataQualityInsightsTestCase
+class GetProductUuidsToEvaluateQueryIntegration extends DataQualityInsightsTestCase
 {
-    private GetProductIdsToEvaluateQuery $productQuery;
+    private GetProductUuidsToEvaluateQuery $productQuery;
 
     private CriterionEvaluationRepositoryInterface $productCriterionEvaluationRepository;
 
@@ -32,56 +32,56 @@ class GetProductIdsToEvaluateQueryIntegration extends DataQualityInsightsTestCas
         $this->givenAProductWithEvaluationDone();
         $this->assertEquals([], iterator_to_array($this->productQuery->execute(4, 2)), 'All products evaluations should be done');
 
-        $expectedProductIds = $this->givenThreeProductsToEvaluate();
+        $expectedProductUuids = $this->givenThreeProductsToEvaluate();
 
-        $productIds = iterator_to_array($this->productQuery->execute(4, 2));
-        $productIds = array_map(fn (ProductIdCollection $collection) => $collection->toArrayString(), $productIds);
+        $productUuids = iterator_to_array($this->productQuery->execute(4, 2));
+        $productUuids = array_map(fn (ProductUuidCollection $collection) => $collection->toArrayString(), $productUuids);
 
-        $this->assertCount(2, $productIds);
-        $this->assertCount(2, $productIds[0]);
-        $this->assertEqualsCanonicalizing($expectedProductIds, array_merge_recursive(...$productIds));
+        $this->assertCount(2, $productUuids);
+        $this->assertCount(2, $productUuids[0]);
+        $this->assertEqualsCanonicalizing($expectedProductUuids, array_merge_recursive(...$productUuids));
     }
 
     private function givenThreeProductsToEvaluate(): array
     {
-        $productId1= $this->createProductWithoutEvaluations('product_1')->getId();
-        $productId2 = $this->createProductWithoutEvaluations('product_2')->getId();
-        $productId3 = $this->createProductWithoutEvaluations('product_3')->getId();
+        $productUuid1 = $this->createProductWithoutEvaluations('product_1')->getUuid();
+        $productUuid2 = $this->createProductWithoutEvaluations('product_2')->getUuid();
+        $productUuid3 = $this->createProductWithoutEvaluations('product_3')->getUuid();
 
         $evaluations = (new Write\CriterionEvaluationCollection)
             ->add(new Write\CriterionEvaluation(
                 new CriterionCode('completeness'),
-                new ProductId($productId1),
+                ProductUuid::fromUuid($productUuid1),
                 CriterionEvaluationStatus::pending()
             ))
             ->add(new Write\CriterionEvaluation(
                 new CriterionCode('spelling'),
-                new ProductId($productId1),
+                ProductUuid::fromUuid($productUuid1),
                 CriterionEvaluationStatus::done()
             ))
             ->add(new Write\CriterionEvaluation(
                 new CriterionCode('completion'),
-                new ProductId($productId2),
+                ProductUuid::fromUuid($productUuid2),
                 CriterionEvaluationStatus::pending()
             ))
             ->add(new Write\CriterionEvaluation(
                 new CriterionCode('completion'),
-                new ProductId($productId3),
+                ProductUuid::fromUuid($productUuid3),
                 CriterionEvaluationStatus::pending()
             ));
 
         $this->productCriterionEvaluationRepository->create($evaluations);
 
-        return [$productId1, $productId2, $productId3];
+        return [$productUuid1, $productUuid2, $productUuid3];
     }
 
     private function givenAProductWithEvaluationDone(): void
     {
-        $productId = $this->createProductWithoutEvaluations('product_with_evaluations_done')->getId();
+        $productUuid = $this->createProductWithoutEvaluations('product_with_evaluations_done')->getUuid();
 
         $evaluationDone = new Write\CriterionEvaluation(
             new CriterionCode('completeness'),
-            new ProductId($productId),
+            ProductUuid::fromUuid($productUuid),
             CriterionEvaluationStatus::pending()
         );
 

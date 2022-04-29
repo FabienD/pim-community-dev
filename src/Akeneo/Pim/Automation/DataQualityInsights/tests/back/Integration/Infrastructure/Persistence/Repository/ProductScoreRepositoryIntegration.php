@@ -8,7 +8,7 @@ use Akeneo\Pim\Automation\DataQualityInsights\Domain\Model\ChannelLocaleRateColl
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\Model\Write\ProductScores;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ChannelCode;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\LocaleCode;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\Rank;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\Rate;
 use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Repository\ProductScoreRepository;
@@ -22,29 +22,29 @@ final class ProductScoreRepositoryIntegration extends DataQualityInsightsTestCas
 {
     public function test_it_save_multiple_products_scores(): void
     {
-        $productIdA = $this->createProduct('product_A')->getId();
-        $productIdB = $this->createProduct('product_B')->getId();
+        $productUuidA = $this->createProduct('product_A')->getUuid()->toString();
+        $productUuidB = $this->createProduct('product_B')->getUuid()->toString();
 
         $channelMobile = new ChannelCode('mobile');
         $localeEn = new LocaleCode('en_US');
         $localeFr = new LocaleCode('fr_FR');
 
         $productScoreA1 = new ProductScores(
-            new ProductId($productIdA),
+            ProductUuid::fromString($productUuidA),
             new \DateTimeImmutable('2020-11-17'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(96))
                 ->addRate($channelMobile, $localeFr, new Rate(36))
         );
         $productScoreA2 = new ProductScores(
-            new ProductId($productIdA),
+            ProductUuid::fromString($productUuidA),
             new \DateTimeImmutable('2020-11-16'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(89))
                 ->addRate($channelMobile, $localeFr, new Rate(42))
         );
         $productScoreB = new ProductScores(
-            new ProductId($productIdB),
+            ProductUuid::fromString($productUuidB),
             new \DateTimeImmutable('2020-11-16'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(71))
@@ -52,7 +52,7 @@ final class ProductScoreRepositoryIntegration extends DataQualityInsightsTestCas
         );
         // To ensure that it doesn't crash when saving a unknown product
         $unknownProductScore = new ProductScores(
-            new ProductId($productIdB),
+            ProductUuid::fromString($productUuidB),
             new \DateTimeImmutable('2020-11-16'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(71))
@@ -69,36 +69,36 @@ final class ProductScoreRepositoryIntegration extends DataQualityInsightsTestCas
 
     public function test_it_purges_scores_older_than_a_given_date(): void
     {
-        $productIdA = $this->createProduct('product_A')->getId();
-        $productIdB = $this->createProduct('product_B')->getId();
+        $productUuidA = $this->createProduct('product_A')->getUuid()->toString();
+        $productUuidB = $this->createProduct('product_B')->getUuid()->toString();
 
         $channelMobile = new ChannelCode('mobile');
         $localeEn = new LocaleCode('en_US');
         $localeFr = new LocaleCode('fr_FR');
 
         $productScoreA1 = new ProductScores(
-            new ProductId($productIdA),
+            ProductUuid::fromString($productUuidA),
             new \DateTimeImmutable('2020-11-18'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(96))
                 ->addRate($channelMobile, $localeFr, new Rate(36))
         );
         $productScoreA2 = new ProductScores(
-            new ProductId($productIdA),
+            ProductUuid::fromString($productUuidA),
             new \DateTimeImmutable('2020-11-17'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(79))
                 ->addRate($channelMobile, $localeFr, new Rate(12))
         );
         $productScoreA3 = new ProductScores(
-            new ProductId($productIdA),
+            ProductUuid::fromString($productUuidA),
             new \DateTimeImmutable('2020-11-16'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(89))
                 ->addRate($channelMobile, $localeFr, new Rate(42))
         );
         $productScoreB = new ProductScores(
-            new ProductId($productIdB),
+            ProductUuid::fromString($productUuidB),
             new \DateTimeImmutable('2020-11-16'),
             (new ChannelLocaleRateCollection())
                 ->addRate($channelMobile, $localeEn, new Rate(71))
@@ -132,10 +132,10 @@ SQL
         $productScore = $this->get('database_connection')->executeQuery(<<<SQL
 SELECT * FROM pim_data_quality_insights_product_score score
     JOIN pim_catalog_product product ON product.uuid = score.product_uuid
-WHERE product.id = :productId AND evaluated_at = :evaluatedAt;
+WHERE product.uuid = :productUuid AND evaluated_at = :evaluatedAt;
 SQL,
             [
-                'productId' => $expectedProductScore->getProductId()->toInt(),
+                'productUuid' => $expectedProductScore->getEntityId()->toBytes(),
                 'evaluatedAt' => $expectedProductScore->getEvaluatedAt()->format('Y-m-d'),
             ]
         )->fetchAssociative();
@@ -155,16 +155,16 @@ SQL,
     private function insertProductScore(ProductScores $productScore): void
     {
         $insertQuery = <<<SQL
-INSERT INTO pim_data_quality_insights_product_score (product_id, evaluated_at, scores)
-VALUES (:productId, :evaluatedAt, :scores);
+INSERT INTO pim_data_quality_insights_product_score (product_uuid, evaluated_at, scores)
+VALUES (:productUuid, :evaluatedAt, :scores);
 SQL;
 
         $this->get('database_connection')->executeQuery($insertQuery, [
-            'productId' => $productScore->getProductId()->toInt(),
+            'productUuid' => $productScore->getEntityId()->toBytes(),
             'evaluatedAt' => $productScore->getEvaluatedAt()->format('Y-m-d'),
             'scores' => \json_encode($productScore->getScores()->toNormalizedRates()),
         ], [
-            'productId' => \PDO::PARAM_INT,
+            'productUuid' => \PDO::PARAM_STR,
         ]);
     }
 }

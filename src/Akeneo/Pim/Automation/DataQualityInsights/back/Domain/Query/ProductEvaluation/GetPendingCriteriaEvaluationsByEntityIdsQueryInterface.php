@@ -11,10 +11,10 @@ use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductEntityId
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-interface GetPendingCriteriaEvaluationsByProductIdsQueryInterface
+interface GetPendingCriteriaEvaluationsByEntityIdsQueryInterface
 {
     /**
      * @return Write\CriterionEvaluationCollection[]
      */
-    public function execute(ProductEntityIdCollection $productIds): array;
+    public function execute(ProductEntityIdCollection $entityIds): array;
 }

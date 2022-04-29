@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\Infrastructure\Elasticsearch\Query;
 
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\Query\ProductEvaluation\GetUpdatedProductIdsQueryInterface;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductIdCollection;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\Query\ProductEvaluation\GetUpdatedProductUuidsQueryInterface;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductEntityIdInterface;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductModelId;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuidCollection;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductModelIdCollection;
 use Akeneo\Pim\Enrichment\Component\Product\Model\ProductInterface;
 use Akeneo\Test\Integration\TestCase;
@@ -18,7 +20,7 @@ use Ramsey\Uuid\Uuid;
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-final class GetUpdatedProductIdsQueryIntegration extends TestCase
+final class GetUpdatedProductUuidsQueryIntegration extends TestCase
 {
     private Connection $db;
 
@@ -36,7 +38,7 @@ final class GetUpdatedProductIdsQueryIntegration extends TestCase
 
     public function test_it_returns_all_updated_product_ids()
     {
-        /** @var GetUpdatedProductIdsQueryInterface $getUpdatedProductIdsQuery */
+        /** @var GetUpdatedProductUuidsQueryInterface $getUpdatedProductIdsQuery */
         $getUpdatedProductIdsQuery = $this->get('akeneo.pim.automation.data_quality_insights.elasticsearch.get_updated_product_ids_query');
 
         $today = new \DateTimeImmutable('2020-03-02 11:34:27');
@@ -55,23 +57,23 @@ final class GetUpdatedProductIdsQueryIntegration extends TestCase
 
         $this->get('akeneo_elasticsearch.client.product_and_product_model')->refreshIndex();
 
-        $productIds = iterator_to_array($getUpdatedProductIdsQuery->since($today->modify('+1 HOUR'), 3));
-        $productIds = array_map(fn (ProductIdCollection $collection) => $collection->toArray(), $productIds);
+        $productUuids = iterator_to_array($getUpdatedProductIdsQuery->since($today->modify('+1 HOUR'), 3));
+        $productUuids = array_map(fn (ProductUuidCollection $collection) => $collection->toArray(), $productUuids);
 
-        $this->assertCount(2, $productIds);
-        $this->assertCount(3, $productIds[0]);
-        $this->assertCount(1, $productIds[1]);
-        $productIds = array_merge($productIds[0], $productIds[1]);
+        $this->assertCount(2, $productUuids);
+        $this->assertCount(3, $productUuids[0]);
+        $this->assertCount(1, $productUuids[1]);
+        $productUuids = array_merge($productUuids[0], $productUuids[1]);
 
-        $this->assertExpectedProductId($expectedProduct1, $productIds);
-        $this->assertExpectedProductId($expectedProduct2, $productIds);
-        $this->assertExpectedProductId($expectedProductVariant1, $productIds);
-        $this->assertExpectedProductId($expectedProductVariant2, $productIds);
+        $this->assertExpectedEntityId($expectedProduct1, $productUuids);
+        $this->assertExpectedEntityId($expectedProduct2, $productUuids);
+        $this->assertExpectedEntityId($expectedProductVariant1, $productUuids);
+        $this->assertExpectedEntityId($expectedProductVariant2, $productUuids);
     }
 
     public function test_it_returns_all_updated_product_model_ids()
     {
-        /** @var GetUpdatedProductIdsQueryInterface $getUpdatedProductIdsQuery */
+        /** @var GetUpdatedProductUuidsQueryInterface $getUpdatedProductIdsQuery */
         $getUpdatedProductModelIdsQuery = $this->get('akeneo.pim.automation.data_quality_insights.elasticsearch.get_updated_product_model_ids_query');
 
         $today = new \DateTimeImmutable('2020-03-02 11:34:27');
@@ -98,10 +100,10 @@ final class GetUpdatedProductIdsQueryIntegration extends TestCase
         $this->assertCount(1, $productIds[1]);
         $productIds = array_merge($productIds[0], $productIds[1]);
 
-        $this->assertExpectedProductId($expectedProductModel1, $productIds);
-        $this->assertExpectedProductId($expectedProductModel2, $productIds);
-        $this->assertExpectedProductId($expectedSubProductModel1, $productIds);
-        $this->assertExpectedProductId($expectedSubProductModel2, $productIds);
+        $this->assertExpectedEntityId($expectedProductModel1, $productIds);
+        $this->assertExpectedEntityId($expectedProductModel2, $productIds);
+        $this->assertExpectedEntityId($expectedSubProductModel1, $productIds);
+        $this->assertExpectedEntityId($expectedSubProductModel2, $productIds);
     }
 
     private function createProduct(): ProductInterface
@@ -156,20 +158,20 @@ SQL;
         $this->get('pim_catalog.elasticsearch.indexer.product_model')->indexFromProductModelCode($productModelCode);
     }
 
-    private function givenAnUpdatedProduct(\DateTimeImmutable $updatedAt): ProductId
+    private function givenAnUpdatedProduct(\DateTimeImmutable $updatedAt): ProductUuid
     {
         $product = $this->createProduct();
         $this->updateProductAt($product, $updatedAt);
 
-        return new ProductId($product->getId());
+        return ProductUuid::fromUuid($product->getUuid());
     }
 
-    private function givenAnUpdatedProductVariant(string $parentCode, \DateTimeImmutable $updatedAt): ProductId
+    private function givenAnUpdatedProductVariant(string $parentCode, \DateTimeImmutable $updatedAt): ProductUuid
     {
         $productVariant = $this->createProductVariant($parentCode);
         $this->updateProductAt($productVariant, $updatedAt);
 
-        return new ProductId($productVariant->getId());
+        return ProductUuid::fromUuid($productVariant->getUuid());
     }
 
     private function givenAProductModel(string $productModelCode, string $familyVariant, \DateTimeImmutable $updatedAt)
@@ -183,7 +185,7 @@ SQL;
         $this->updateProductModelAt($productModelCode, $updatedAt);
     }
 
-    private function givenAnUpdatedParentProductModel(string $productModelCode, \DateTimeImmutable $updatedAt): ProductId
+    private function givenAnUpdatedParentProductModel(string $productModelCode, \DateTimeImmutable $updatedAt): ProductModelId
     {
         $productModel = $this->get('akeneo_integration_tests.catalog.product_model.builder')
             ->withCode($productModelCode)
@@ -193,10 +195,10 @@ SQL;
         $this->get('pim_catalog.saver.product_model')->save($productModel);
         $this->updateProductModelAt($productModelCode, $updatedAt);
 
-        return new ProductId($productModel->getId());
+        return new ProductModelId($productModel->getId());
     }
 
-    private function givenAnUpdatedSubProductModel(string $parentCode, \DateTimeImmutable $updatedAt): ProductId
+    private function givenAnUpdatedSubProductModel(string $parentCode, \DateTimeImmutable $updatedAt): ProductModelId
     {
         $productModel = $this->get('akeneo_integration_tests.catalog.product_model.builder')
             ->withCode(strval(Uuid::uuid4()))
@@ -208,17 +210,17 @@ SQL;
 
         $this->updateProductModelAt($productModel->getCode(), $updatedAt);
 
-        return new ProductId($productModel->getId());
+        return new ProductModelId($productModel->getId());
     }
 
-    private function assertExpectedProductId(ProductId $expectedProductId, array $productIds): void
+    private function assertExpectedEntityId(ProductEntityIdInterface $expectedEntityId, array $entityIds): void
     {
-        foreach ($productIds as $productId) {
-            if ($productId->toInt() === $expectedProductId->toInt()) {
+        foreach ($entityIds as $entityId) {
+            if ((string) $entityId === (string) $expectedEntityId) {
                 return;
             }
         }
 
-        throw new AssertionFailedError(sprintf('Expected product id %d not found', $expectedProductId->toInt()));
+        throw new AssertionFailedError(sprintf('Expected entity id %s not found', (string) $expectedEntityId));
     }
 }

@@ -4,28 +4,29 @@ declare(strict_types=1);
 
 namespace Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\Infrastructure\Persistence\Query\ProductEnrichment;
 
-use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductIdFactory;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\Query\ProductEnrichment\GetProductIdentifierFromProductIdQueryInterface;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
+use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductUuidFactory;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\Query\ProductEnrichment\GetProductIdentifierFromProductUuidQueryInterface;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
 use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductIdentifier;
-use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEnrichment\GetProductIdentifierFromProductIdQuery;
+use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEnrichment\GetProductIdentifierFromProductUuidQuery;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
+use Ramsey\Uuid\Uuid;
 
 /**
  * @copyright 2019 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-class GetProductIdentifierFromProductIdQueryIntegration extends TestCase
+class GetProductIdentifierFromProductUuidQueryIntegration extends TestCase
 {
-    /** @var GetProductIdentifierFromProductIdQueryInterface */
+    /** @var GetProductIdentifierFromProductUuidQueryInterface */
     private $query;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->query = $this->get(GetProductIdentifierFromProductIdQuery::class);
+        $this->query = $this->get(GetProductIdentifierFromProductUuidQuery::class);
     }
 
     /**
@@ -44,8 +45,8 @@ class GetProductIdentifierFromProductIdQueryIntegration extends TestCase
      */
     public function it_throws_an_exception_if_the_product_does_not_exist()
     {
-        $this->expectExceptionMessage('No identifier found for product id 42');
-        $this->query->execute(new ProductId(42));
+        $this->expectExceptionMessage('No identifier found for product uuid df470d52-7723-4890-85a0-e79be625e2ed');
+        $this->query->execute(ProductUuid::fromString(('df470d52-7723-4890-85a0-e79be625e2ed')));
     }
 
     protected function getConfiguration(): Configuration
@@ -53,13 +54,13 @@ class GetProductIdentifierFromProductIdQueryIntegration extends TestCase
         return $this->catalog->useMinimalCatalog();
     }
 
-    private function createProduct(string $identifier): ProductId
+    private function createProduct(string $identifier): ProductUuid
     {
         $product = $this->get('akeneo_integration_tests.catalog.product.builder')
             ->withIdentifier($identifier)
             ->build();
 
         $this->get('pim_catalog.saver.product')->save($product);
-        return $this->get(ProductIdFactory::class)->create((string)$product->getId());
+        return $this->get(ProductUuidFactory::class)->create((string)$product->getUuid());
     }
 }

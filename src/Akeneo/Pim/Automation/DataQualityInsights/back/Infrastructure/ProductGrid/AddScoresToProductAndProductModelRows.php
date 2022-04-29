@@ -23,7 +23,6 @@ class AddScoresToProductAndProductModelRows
     ) {
     }
 
-
     /**
      * @param Row[] $rows
      * @param 'product_model'|'product' $type
@@ -50,7 +49,7 @@ class AddScoresToProductAndProductModelRows
 
         $enrichedRows = [];
         foreach ($rows as $row) {
-            $scoreValue = $this->retrieveScore($row->technicalId(), $scores, $channel, $locale);
+            $scoreValue = $this->retrieveScore((string) $row->technicalId(), $scores, $channel, $locale);
             $property = new AdditionalProperty('data_quality_insights_score', $scoreValue);
             $enrichedRows[] = $row->addAdditionalProperty($property);
         }
@@ -58,7 +57,7 @@ class AddScoresToProductAndProductModelRows
         return $enrichedRows;
     }
 
-    private function retrieveScore(int $technicalId, array $scores, ChannelCode $channel, LocaleCode $locale): string
+    private function retrieveScore(string $technicalId, array $scores, ChannelCode $channel, LocaleCode $locale): string
     {
         if (isset($scores[$technicalId])) {
             $score = $scores[$technicalId]->getByChannelAndLocale($channel, $locale);

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Akeneo\Test\Pim\Automation\DataQualityInsights\Integration\Infrastructure\Persistence\Query\ProductEnrichment;
 
-use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductIdFactory;
-use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductId;
-use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEnrichment\GetProductIdsFromProductIdentifiersQuery;
+use Akeneo\Pim\Automation\DataQualityInsights\Application\ProductUuidFactory;
+use Akeneo\Pim\Automation\DataQualityInsights\Domain\ValueObject\ProductUuid;
+use Akeneo\Pim\Automation\DataQualityInsights\Infrastructure\Persistence\Query\ProductEnrichment\GetProductUuidsFromProductIdentifiersQuery;
 use Akeneo\Test\Integration\Configuration;
 use Akeneo\Test\Integration\TestCase;
 
@@ -14,16 +14,16 @@ use Akeneo\Test\Integration\TestCase;
  * @copyright 2020 Akeneo SAS (http://www.akeneo.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
-final class GetProductIdsFromProductIdentifiersQueryIntegration extends TestCase
+final class GetProductUuidsFromProductIdentifiersQueryIntegration extends TestCase
 {
-    /** @var GetProductIdsFromProductIdentifiersQuery */
+    /** @var GetProductUuidsFromProductIdentifiersQuery */
     private $query;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->query = $this->get(GetProductIdsFromProductIdentifiersQuery::class);
+        $this->query = $this->get(GetProductUuidsFromProductIdentifiersQuery::class);
     }
 
     protected function getConfiguration(): Configuration
@@ -46,7 +46,7 @@ final class GetProductIdsFromProductIdentifiersQueryIntegration extends TestCase
         $this->assertEquals($expectedProductIds, $productIds);
     }
 
-    private function createProduct(string $identifier): ProductId
+    private function createProduct(string $identifier): ProductUuid
     {
         $product = $this->get('akeneo_integration_tests.catalog.product.builder')
             ->withIdentifier($identifier)
@@ -54,6 +54,6 @@ final class GetProductIdsFromProductIdentifiersQueryIntegration extends TestCase
 
         $this->get('pim_catalog.saver.product')->save($product);
 
-        return $this->get(ProductIdFactory::class)->create((string)$product->getId());
+        return $this->get(ProductUuidFactory::class)->create((string)$product->getUuid());
     }
 }
